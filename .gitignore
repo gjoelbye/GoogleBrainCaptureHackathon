@@ -1,0 +1,6 @@
+# ignore data folder
+/data/
+
+# ignore local mac ds_store files
+.DS_Store
+
