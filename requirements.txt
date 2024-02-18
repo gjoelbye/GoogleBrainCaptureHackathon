@@ -1,0 +1,13 @@
+numpy
+matplotlib
+sympy<1.10 # alternatively install using: > pip install "sympy<1.10"
+sklearn # Required for MPC (nearest-neighbors)
+tqdm
+seaborn
+sklearn
+pandas
+mne
+torch
+tabulate
+scipy
+braindecode
