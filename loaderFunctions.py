@@ -206,25 +206,9 @@ class TUH_data:
 
             self.EEG_dict[k]["rawData"] = TUH_rename_ch(self.EEG_dict[k]["rawData"])
             TUH_pick = ['Fp1', 'Fp2', 'F3', 'F4', 'C3', 'C4', 'P3', 'P4', 'O1', 'O2',
-                        'F7', 'F8', 'T3', 'T4', 'T5', 'T6', 'Cz']  # A1, A2 removed
+                        'F7', 'F8', 'T3', 'T4', 'T5', 'T6', 'Cz', 'A1', 'A2'] 
             self.EEG_dict[k]["rawData"].pick_channels(ch_names=TUH_pick)
             self.EEG_dict[k]["rawData"].reorder_channels(TUH_pick)
-
-            if k == 0 and plot:
-                """#Plot the energy voltage potential against frequency.
-                figpsd, ax = plt.subplots(nrows=2,ncols=1,figsize=(10, 6))
-                self.EEG_dict[k]["rawData"].plot_psd(tmax=np.inf, ax=ax[0], fmax=125, average=True, show=False)
-                ax[0].set_title('Power Spectral Density (PSD) before filtering',size=18)
-                ax[0].set_ylabel('PSD (dB)', size=14)"""
-
-                """raw_anno = annotate_TUH(self.EEG_dict[k]["rawData"],df=annotations)
-                #mne.viz.plot_raw(raw_anno,clipping=1)
-                raw_anno.plot()
-                #plt.title("Untouched raw signal with elec artifacts")
-                plt.savefig('Untouched_raw_signal.png')
-                plt.show()"""
-                pass
-
 
             simplePreprocess(self.EEG_dict[k]["rawData"], cap_setup="standard_1005", lpfq=1, hpfq=100, notchfq=60,
                      downSam=250)
@@ -233,21 +217,10 @@ class TUH_data:
                 self.sfreq = self.EEG_dict[k]["rawData"].info["sfreq"]
                 self.ch_names = self.EEG_dict[k]["rawData"].info["ch_names"]
                 if plot:
-                    """self.EEG_dict[k]["rawData"].plot_psd(tmax=np.inf, fmax=125,ax=ax[1], average=True, show=False)
-                    ax[1].set_title('Power Spectral Density (PSD) after filtering',size=18)
-                    ax[1].set_xlabel('Frequency (Hz)',size=14)
-                    ax[1].set_ylabel('PSD (dB)', size=14)
-                    figpsd.set_tight_layout(True)
-                    plt.savefig("psd_before_after.png", dpi=1000, bbox_inches='tight')
-                    plt.show()"""
-
                     raw_anno = annotate_TUH(self.EEG_dict[k]["rawData"], df=annotations)
                     raw_anno.plot(clipping=1)
-                    #plt.title("Raw signal with elec artifact after simple preprocessing")
                     plt.savefig('Raw_signal_post_processing.png')
                     plt.show()
-
-
 
             # Generate output windows for (X,y) as (array, label)
             self.EEG_dict[k]["labeled_windows"], self.index_patient_df["window_count"][k], self.index_patient_df["elec_count"][k] = slidingRawWindow(self.EEG_dict[k],
@@ -418,23 +391,6 @@ class TUH_data:
               "it took %imin:%is to run electrode classifier preprocess-pipeline for %i file(s)\nwith window length [%.2fs] and t_step [%.2fs]"
               "\n~~~~~~~~~~~~~~~~~~~~\n" % (int((toc - tic) / 60), int((toc - tic) % 60), len(self.EEG_dict),
                                             tWindow, tStep))
-
-    def doParallelJob(self,tasks_to_do,tWindow=100, tStep=100 *.25,results=None):
-        while True:
-            try:
-                k = tasks_to_do.get_nowait()
-
-
-            except queue.Empty:
-                break
-            else:
-                #Run preprocessing on this file:
-                result=self.parallelPrepVer3(k,tWindow,tStep)
-                #if no exception has been raised, add the result to results queue
-                print(f"Task no. {k} is done.")
-                results.put(result)
-                time.sleep(.5)
-        return True
 
     def parallelPrepVer3(self,k,tWindow=100, tStep=100 *.25):
 
@@ -652,7 +608,7 @@ def plotWindow(EEG_series,label="null", t_max=0, t_step=1):
     for i in range(0, t_N - window_width, t_step):
         t_start = i / edf_fS
         t_end = (i + window_width) / edf_fS
-        window_label = label_TUH(dataFrame=df, window=[t_start, t_end])
+        window_label = label_TUH(dataFrame=False, window=[t_start, t_end])
         if len(window_label)==1 & window_label[0]==label:
             return EEG_series["rawData"].plot(t_start=t_start, t_end=t_end)
     return None
