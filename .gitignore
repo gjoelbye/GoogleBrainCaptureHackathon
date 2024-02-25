@@ -4,3 +4,5 @@
 # ignore local mac ds_store files
 .DS_Store
 
+# ignore python cache files
+__pycache__/
