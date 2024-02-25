@@ -271,8 +271,6 @@ def load_config(path='config.ini'):
     config.read(path)
     return config
 
-
-
 if __name__ == "__main__":
     # Load the configuration file
     config = load_config()
