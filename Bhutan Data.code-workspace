@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "Bhutan Data",
+			"path": "../Downloads/Bhutan Data"
+		},
+		{
+			"name": "GoogleBrainCaptureHackathon",
+			"path": "."
+		},
+		{
+			"name": "MMIDB",
+			"path": "../Downloads/MMIDB"
+		}
+	],
+	"settings": {}
+}
