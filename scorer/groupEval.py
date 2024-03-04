@@ -9,7 +9,7 @@ class HackathonScorer:
 
     def load_applications(self):
         applications = pd.read_csv(self.applications_path)
-        if self.num_applications != -1:
+        if self.num_applications > 0:
             applications = applications.sample(self.num_applications)
         # Drop unnecessary columns
         applications = applications.drop(columns=['email', 'guest_type', 'rsvp_status', 'registration_time', 'create_time',
@@ -107,7 +107,10 @@ class HackathonScorer:
                     continue
                 response = application[field]
                 print(f"{field}: {response}")
-                score += int(input("Score: "))
+                pointscore = input(f"Score for (0-5): ")
+                if pointscore == '':
+                    pointscore = 0
+                score += int(pointscore)
             scores.append(score)
             print(f"Total score for application {application['id']}: {score}/{maxscore}\n")
         applications[scorer_initials] = scores
@@ -129,5 +132,6 @@ class HackathonScorer:
 if __name__ == "__main__":
     scorer_initials = input("\nWelcome!\n\nEnter your initials: ")
     scorer_initials += "_score"
-    hackathon_scorer = HackathonScorer(applications_path='./data/applications/applications.csv', num_applications = 1, scorer_initials = scorer_initials)
+    num_applications = int(input("\nEnter the number of applications to score (-1 for all contestants): "))
+    hackathon_scorer = HackathonScorer(applications_path='./data/applications/applications.csv', num_applications = num_applications, scorer_initials = scorer_initials)
     hackathon_scorer.main()
