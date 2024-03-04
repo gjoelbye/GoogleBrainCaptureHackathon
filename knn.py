@@ -7,10 +7,12 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # Load the iris dataset
 iris = datasets.load_iris()
 X = iris.data
 y = iris.target
+targets = iris.target_names
 
 # check the number of different classes in y
 print('Number of different classes in y: ', len(np.unique(y)))
@@ -44,37 +46,51 @@ y_pred = knn.predict(X_test_pca)
 # Print the accuracy
 print('Balanced accuracy: ', balanced_accuracy_score(y_test, y_pred))
 
-# Plot the decision boundary
-h = .02
-x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
-y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
-Z = Z.reshape(xx.shape)
-plt.figure()
-plt.pcolormesh(xx, yy, Z, alpha=0.1)
-colors = ['navy', 'turquoise', 'darkorange'] # change in accordance with number of classes
-lw = 2
-for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), iris.target_names):
-    plt.scatter(X_train_pca[y_train == i, 0], X_train_pca[y_train == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
-plt.legend(loc='best', shadow=False, scatterpoints=1)
-plt.title('PCA of IRIS Training Dataset')
-plt.show()
 
-# Visualize the PCA-transformed training data
-plt.figure(figsize=(12, 5))
-plt.subplot(1, 2, 1)
-colors = ['navy', 'turquoise', 'darkorange']
-lw = 2
-for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), iris.target_names):
-    plt.scatter(X_train_pca[y_train == i, 0], X_train_pca[y_train == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
-plt.legend(loc='best', shadow=False, scatterpoints=1)
-plt.title('PCA of IRIS Training Dataset')
 
-# Visualize the PCA-transformed test data
-plt.subplot(1, 2, 2)
-for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), iris.target_names):
-    plt.scatter(X_test_pca[y_test == i, 0], X_test_pca[y_test == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
-plt.legend(loc='best', shadow=False, scatterpoints=1)
-plt.title('PCA of IRIS Testing Dataset')
-plt.show()
+
+def plot_decision_boundary(X_train_pca, y_train, targets, knn):
+
+    # Plot the decision boundary
+    h = .02
+    x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
+    y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, alpha=0.1)
+    colors = ['navy', 'turquoise', 'darkorange'] # change in accordance with number of classes
+    lw = 2
+    for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), targets):
+        plt.scatter(X_train_pca[y_train == i, 0], X_train_pca[y_train == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
+    plt.legend(loc='best', shadow=False, scatterpoints=1)
+    plt.title('PCA of IRIS Training Dataset')
+    plt.show()
+
+def visualize_PCA(X_pca, y_train, targets, split='Training'):
+
+    # Visualize the PCA-transformed training data
+    plt.figure(figsize=(6,6))
+    colors = ['navy', 'turquoise', 'darkorange']
+    lw = 2
+    for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), targets):
+        plt.scatter(X_pca[y_train == i, 0], X_pca[y_train == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
+    plt.legend(loc='best', shadow=False, scatterpoints=1)
+    plt.title(f'PCA of IRIS {split} Dataset')
+    plt.xlabel('PC1')
+    plt.ylabel('PC2')
+    plt.show()
+
+plot_decision_boundary(X_train_pca, y_train, targets, knn)
+visualize_PCA(X_train_pca, y_train, targets, split='Training')
+visualize_PCA(X_test_pca, y_test, targets, split='Testing')
+
+
+    # # Visualize the PCA-transformed test data
+    # plt.subplot(1, 2, 2)
+    # for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), targets):
+    #     plt.scatter(X_test_pca[y_test == i, 0], X_test_pca[y_test == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
+    # plt.legend(loc='best', shadow=False, scatterpoints=1)
+    # plt.title('PCA of IRIS Testing Dataset')
+    # plt.show()
