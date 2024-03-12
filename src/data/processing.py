@@ -7,38 +7,35 @@ from src.data.utils.eeg import get_raw
 
 import torch
 
-def min_max_normalize(x: torch.Tensor, low=-1, high=1):
-    # Assuming x has shape (windows, channels, samples)
-    # Normalize along the samples dimension
-    xmin = x.min(dim=-1, keepdim=True)[0]
-    xmax = x.max(dim=-1, keepdim=True)[0]
-    
+
+def normalize_and_add_scaling_channel(x: torch.Tensor, low=-1, high=1, data_min = -0.001, data_max = 0.001, scale_idx = -1):
+
+    if len(x.shape) == 2:
+        xmin = x.min()
+        xmax = x.max()
+
+    elif len(x.shape) == 3:
+        xmin = torch.min(torch.min(x, keepdim=True, dim=1)[0], keepdim=True, dim=-1)[0]
+        xmax = torch.max(torch.max(x, keepdim=True, dim=1)[0], keepdim=True, dim=-1)[0]
+
     x = (x - xmin) / (xmax - xmin)
 
     # Now all scaled 0 -> 1, remove 0.5 bias
     x -= 0.5
     # Adjust for low/high bias and scale up
     x += (high + low) / 2
-    return (high - low) * x
-
-
-def add_scaling_channel(x: torch.Tensor, data_min=-0.001, data_max=0.001, scale_idx=-1):
-    # Assuming x has shape (windows, channels, samples)
-    max_scale = data_max - data_min
-
-    # Calculate the scale along the samples dimension
-    scale = 2 * (torch.clamp_max((x.max(dim=-1, keepdim=True)[0] - x.min(dim=-1, keepdim=True)[0]) / max_scale, 1.0) - 0.5)
-
-    # Initialize output tensor with an additional channel
-    X = torch.zeros(x.shape[0], x.shape[1] + 1, x.shape[2])
+    x = (high - low) * x
     
-    # Copy the input data into the output tensor
+    X = torch.zeros((x.shape[0], x.shape[1] + 1, x.shape[2]))
     X[:, :-1] = x
 
-    # Insert the calculated scale values into the scaling channel (scale_idx)
-    X[:, scale_idx] = scale.squeeze(dim=-1)
+    max_scale = data_max - data_min
+
+    scale = 2 * (torch.clamp_max((x.max() - x.min()) / max_scale, 1.0) - 0.5)
+    X[:, scale_idx] = scale
 
     return X
+
 
 
 def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -0.5, tlen: float = 6, labels: bool = False):
@@ -91,7 +88,7 @@ def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -
                 epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
 
             data_dict[subject][session_name]['X'] = epochs.get_data()
-        break
+
     return data_dict
 
 
@@ -118,8 +115,7 @@ def get_data(data_dict, subject_list=None):
     X = [torch.tensor(data_dict[subject][session]['X']) for subject in subject_list for session in data_dict[subject].keys()]
     X = torch.cat(X)
 
-    X = min_max_normalize(X)
-    X = add_scaling_channel(X)
+    X = normalize_and_add_scaling_channel(X)
 
     if 'y' in data_dict[subject_list[0]][list(data_dict[subject_list[0]].keys())[0]]:
         y = [torch.tensor(data_dict[subject][session]['y']) for subject in subject_list for session in data_dict[subject].keys()]

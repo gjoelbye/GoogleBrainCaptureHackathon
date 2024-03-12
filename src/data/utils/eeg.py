@@ -7,27 +7,6 @@ from tqdm.notebook import tqdm
 from src.data.conf.eeg_channel_picks import hackathon 
 from src.data.conf.eeg_channel_order import standard_19_channel
 
-def deep1010_stuff(raw, channel_order):
-    raw = raw.copy()
-
-    X = raw.get_data()
-    X = min_max_normalize(torch.tensor(X))
-    X = add_scaling_channel(X)
-
-    ch_names = channel_order + ['scaling']
-    ch_types = ['eeg'] * len(channel_order) + ['misc']
-
-    new_info = mne.create_info(ch_names, raw.info['sfreq'], ch_types=ch_types)
-
-    new_raw = mne.io.RawArray(X, new_info, verbose=False)
-    new_raw.set_montage(raw.get_montage())
-    new_raw.set_meas_date(raw.info['meas_date'])
-    new_raw.set_annotations(raw.annotations)
-    new_raw.set_eeg_reference(ref_channels='average', projection=False, verbose=False)
-    
-    new_raw.filter(raw.info['highpass'], raw.info['lowpass'], fir_design='firwin', verbose=False)
-
-    return new_raw
 
 def pick_rename_reorder_channels(raw, channel_picks, channel_order):
     """Picks and renames the channels of the raw object.
@@ -97,9 +76,6 @@ def get_raw(edf_file_path: str,
         raw = raw.filter(highpass, lowpass, fir_design='firwin', verbose=False)
         raw = raw.notch_filter(notch, fir_design='firwin', verbose=False)
 
-    # TODO: remove deep1010 when ready
-    raw = deep1010_stuff(raw, channel_order)
-    
     return raw
 
 
