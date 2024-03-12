@@ -15,7 +15,12 @@ config = load_config()
 
 # Load the Bhutan EEG dataset
 # Load the Bhutan EEG dataset
-bhutan = BhutanDataSet('/Users/benjaminfazal/Downloads/Bhutan Data/test_file.edf', subject=int(config['Bhutan']['subject']), 
+path = r'C:/Users/wille/OneDrive - Danmarks Tekniske Universitet/Dokumenter/0. Thesis/trustworthy-causal-ai/data/raw/BC Bhutan/v4.0/0c5987cb-48fd-485c-a920-c03e935b099a/2023-09-21_12-14-45_9cbb9849_27_electrodes.edf'
+
+subject = 'S001'
+session = 'R01'
+
+bhutan = BhutanDataSet(path, subject=int(config['Bhutan']['subject']), 
                         session=int(config['Bhutan']['session']), event=config['Bhutan']['event'], 
                         event_id=int(config['Bhutan']['event_id']), tmin=int(config['Bhutan']['tmin']), 
                         tmax=int(config['Bhutan']['tmax']), baseline=None, 
@@ -45,9 +50,3 @@ fig, ax = plt.subplots(1, 1, figsize=(15, 3))
 mne.viz.plot_events(events, raw.info['sfreq'], raw.first_samp, event_id=event_id, axes=ax)
 ax.set(title='Annotations')
 plt.show()
-
-
-
-
-
-
