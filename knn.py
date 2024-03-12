@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # Load the iris dataset
 iris = datasets.load_iris()
 X = iris.data
