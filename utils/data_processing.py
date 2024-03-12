@@ -61,7 +61,7 @@ def load_data_dict(data_folder_path: str, channel_picks: list, channel_order: li
             edf_file_path = data_folder_path + subject + '/' + session
             raw = get_raw(edf_file_path, channel_picks, channel_order, filter=True)
 
-            print(raw.annotations.description)
+            #print(raw.annotations.description)
 
             if labels:
                 # TODO: remove try-except, was added to handle TUAR data
@@ -73,22 +73,22 @@ def load_data_dict(data_folder_path: str, channel_picks: list, channel_order: li
                     continue
 
                 tmax = tmin + tlen
-                epochs = mne.Epochs(raw, events=events[0], tmin=tmin, tmax=tmax, event_repeated='merge', verbose='warning')
+                epochs = mne.Epochs(raw, events=events[0], tmin=tmin, tmax=tmax, event_repeated='merge', verbose=False, baseline=(0, 0))
 
                 y = epochs.events[:, 2]
 
                 # TODO: remove this hack
-                if 4 in y or 5 in y or 6 in y or 7 in y:
-                    print(f'{subject} {session_name} has fishy annotations, skipping...')
-                    data_dict[subject].pop(session_name)
-                    continue
+                # if 4 in y or 5 in y or 6 in y or 7 in y:
+                #     print(f'{subject} {session_name} has fishy annotations, skipping...')
+                #     data_dict[subject].pop(session_name)
+                #     continue
 
                 data_dict[subject][session_name]['y'] = epochs.events[:, 2]
             else:
                 epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose=False)
 
-            data_dict[subject][session_name]['X'] = epochs.get_data()
-    
+            data_dict[subject][session_name]['X'] = epochs.get_data(verbose=False)
+                       
     return data_dict
 
 # TODO: better name for this function

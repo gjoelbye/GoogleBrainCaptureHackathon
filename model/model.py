@@ -55,7 +55,7 @@ class EncodingAugment(nn.Module):
         conv = nn.Conv1d(in_features, in_features, position_encoder, padding=position_encoder // 2, groups=16)
         nn.init.normal_(conv.weight, mean=0, std=2 / transformer_dim)
         nn.init.constant_(conv.bias, 0)
-        conv = nn.utils.weight_norm(conv, dim=2)
+        conv = nn.utils.parametrizations.weight_norm(conv, dim=2)
         self.relative_position = nn.Sequential(conv, nn.GELU())
 
         self.input_conditioning = nn.Sequential(
@@ -89,39 +89,6 @@ class EncodingAugment(nn.Module):
         for param in self.parameters():
             param.requires_grad = False
         print("Initialized mask embedding and position encoder from ", filename)
-
-class LinearHeadBENDR(nn.Module):
-    def __init__(self, encoder, in_features, out_features, pool_length=4):
-        super().__init__()
-        self.encoder = encoder
-        encoder_h = in_features
-
-        # inferred values from the original implementation
-        # https://github.com/SPOClab-ca/BENDR/blob/ac918abaec111d15fcaa2a8fcd2bd3d8b0d81a10/dn3_ext.py#L44
-        mask_p_t = 0.01
-        mask_p_c = 0.005
-        mask_t_span = 0.05
-        mask_c_span = 0.1
-
-        encoded_samples = 4 * 256
-
-        mask_t_span = mask_t_span if mask_t_span > 1 else int(mask_t_span * encoded_samples)
-        mask_t_span = 0 if encoded_samples < 2 else mask_t_span
-
-        mask_c_span = mask_c_span if mask_c_span > 1 else int(mask_c_span * encoder_h)
-
-        self.enc_augment = EncodingAugment(
-            encoder_h, mask_p_t, mask_p_c, mask_c_span=mask_c_span, mask_t_span=mask_t_span
-        )
-
-        self.summarizer = nn.AdaptiveAvgPool1d(4)
-
-
-    def forward(self, x):
-        x = self.encoder(x)
-        x = self.enc_augment(x)
-        x = self.summarizer(x)
-        return x
     
 class BendrEncoder(nn.Module):
     """
@@ -138,13 +105,13 @@ class BendrEncoder(nn.Module):
         grad_frac: float to multiply onto all gradients
 
     Example:
-        >>> from eegatscale.bendr import BendrEncoder
+        >>> from model import BendrEncoder
         >>> import torch
-        >>> encoder = BendrEncoder(in_features = 30)
-        >>> signal = torch.randn(10, 30, 100)  # batch_size x in_features x signal length
+        >>> encoder = BendrEncoder()
+        >>> signal = torch.randn(10, 20, 1280)  # batch_size x in_features x signal length
         >>> out = encoder(signal)
         >>> print(out.shape)
-        torch.Size([10, 256, 2])  # batch_size x encoder_h x out length
+        torch.Size([10, 1536, 4])
     """
     def __init__(
         self,
@@ -152,21 +119,24 @@ class BendrEncoder(nn.Module):
         encoder_h: int = 512,
         enc_width: Tuple[int, ...] = (3, 2, 2, 2, 2, 2),
         dropout: float = 0.0,
-        projection_head: bool = False,
         enc_downsample: Tuple[int, ...] = (3, 2, 2, 2, 2, 2),
-        grad_frac: float = 1.0
+        grad_frac: float = 1.0,
+        mask_p_t: float = 0.01,
+        mask_p_c: float = 0.005,
+        mask_t_span: float = 0.05,
+        mask_c_span: float = 0.1,
+        encoded_samples: int = 4 * 256
+        
     ) -> None:
         super().__init__()
-        if not isinstance(enc_width, tuple):
-            raise ValueError("Expected argument `enc_width` to be of type tuple")
-        if not isinstance(enc_downsample, tuple):
-            raise ValueError("Expected argument `enc_downsample` to be of type tuple")
-        if len(enc_width) != len(enc_downsample):
-            raise ValueError("Expected argum,ent `enc_width` and `enc_downsample` to have same length")
         self.in_features = in_features
         self.encoder_h = encoder_h
-
-        # center convolutions
+        
+        ############################################################
+        # Primary Encoder
+        ############################################################
+        
+        # Center convolutions
         enc_width = [e if e % 2 else e+1 for e in enc_width]        
         self.encoder = nn.Sequential()
         for i, (width, downsample) in enumerate(zip(enc_width, enc_downsample, strict=True)):
@@ -181,12 +151,31 @@ class BendrEncoder(nn.Module):
             )
             in_features = encoder_h
 
-        self.out_features = in_features if projection_head else encoder_h
-
         if grad_frac < 1.0:
             self.register_backward_hook(
                 lambda module, in_grad, out_grad: tuple(grad_frac * ig for ig in in_grad)
             )
+        
+        ############################################################    
+        # Encoding Augment
+        ############################################################
+        
+        mask_t_span = mask_t_span if mask_t_span > 1 else int(mask_t_span * encoded_samples)
+        mask_t_span = 0 if encoded_samples < 2 else mask_t_span
+
+        mask_c_span = mask_c_span if mask_c_span > 1 else int(mask_c_span * encoder_h)
+        
+        self.enc_augment = EncodingAugment(
+            encoder_h, mask_p_t, mask_p_c, mask_c_span=mask_c_span, mask_t_span=mask_t_span
+        )
+        
+        ############################################################
+        # Summarizer
+        ############################################################
+        self.summarizer = nn.AdaptiveAvgPool1d(4)
             
     def forward(self, x: Tensor) -> Tensor:
-        return self.encoder(x)
+        x = self.encoder(x)
+        x = self.enc_augment(x)
+        x = self.summarizer(x)
+        return x
