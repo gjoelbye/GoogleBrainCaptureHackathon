@@ -87,7 +87,6 @@ def visualize_PCA(X_pca, y_train, targets, split='Training'):
     st.pyplot(plt.gcf())
 
 
-# Hackathon example app for file upload and visualization (edf file with EEG data)
 def main():
     st.title('Hackathon Example App')
     st.write("""
@@ -97,4 +96,6 @@ def main():
     plot_decision_boundary(X_train_pca, y_train, targets, knn)
     visualize_PCA(X_train_pca, y_train, targets, split='Training')
     visualize_PCA(X_test_pca, y_test, targets, split='Testing')
-main()
+
+if __name__ == "__main__":
+    main()

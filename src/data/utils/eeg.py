@@ -1,56 +1,12 @@
 
 import mne
-
+import torch
 import numpy as np
 from tqdm.notebook import tqdm
-import torch
 
-from utils.deep1010 import to_deep1010, to_1020
+from src.data.conf.eeg_channel_picks import hackathon 
+from src.data.conf.eeg_channel_order import standard_19_channel
 
-def min_max_normalize(x: torch.Tensor, low=-1, high=1):
-
-    xmin = x.min()
-    xmax = x.max()
-    
-    x = (x - xmin) / (xmax - xmin)
-
-    # Now all scaled 0 -> 1, remove 0.5 bias
-    x -= 0.5
-    # Adjust for low/high bias and scale up
-    x += (high + low) / 2
-    return (high - low) * x
-
-def add_scaling_channel(x: torch.Tensor, data_min = -0.001, data_max = 0.001, scale_idx = -1):
-    
-    X = np.zeros((x.shape[0] + 1, x.shape[1]))
-    X[:-1] = x
-
-    max_scale = data_max - data_min
-
-    scale = 2 * (torch.clamp_max((x.max() - x.min()) / max_scale, 1.0) - 0.5)
-    X[scale_idx] = scale
-
-    return X
-
-def deep1010_stuff(raw, channel_order):
-    raw = raw.copy()
-
-    X = raw.get_data()
-    X = min_max_normalize(torch.tensor(X))
-    X = add_scaling_channel(X)
-
-    ch_names = channel_order + ['scaling']
-    ch_types = ['eeg'] * len(channel_order) + ['misc']
-    new_info = mne.create_info(ch_names, raw.info['sfreq'], ch_types=ch_types)
-
-    
-    new_raw = mne.io.RawArray(X, new_info, verbose=False)
-    new_raw.set_montage(raw.get_montage())
-    new_raw.set_meas_date(raw.info['meas_date'])
-    new_raw.set_annotations(raw.annotations)
-    new_raw.set_eeg_reference(ref_channels='average', projection=False, verbose=False)
-
-    return new_raw
 
 def pick_rename_reorder_channels(raw, channel_picks, channel_order):
     """Picks and renames the channels of the raw object.
@@ -69,15 +25,17 @@ def pick_rename_reorder_channels(raw, channel_picks, channel_order):
     
     raw.pick(picks=channel_picks['original'])
     raw.rename_channels({channel_picks['original'][i]: channel_picks['renamed'][i] for i in range(len(channel_picks['original']))})
+
+    # TODO: Confirm compatibility between channel_picks['renamed'] and channel_order
     raw.reorder_channels(channel_order)
 
     return raw
 
 
 def get_raw(edf_file_path: str,
-            channel_picks: list, channel_order: list,
+            channel_picks: list = hackathon, channel_order: list = standard_19_channel,
             preprocessing: bool = True, filter: bool = True, 
-            resample = 256, high_pass = 0.5, low_pass = 70, notch = 60,
+            resample = 256, highpass = 1, lowpass = 70, notch = 60,
             montage = mne.channels.make_standard_montage('standard_1020')) -> mne.io.Raw:
     """Reads and preprocesses an EDF file.
     Parameters
@@ -115,12 +73,9 @@ def get_raw(edf_file_path: str,
 
     if filter:
         raw = raw.resample(resample, verbose=False)
-        raw = raw.filter(high_pass, low_pass, fir_design='firwin', verbose=False)
+        raw = raw.filter(highpass, lowpass, fir_design='firwin', verbose=False)
         raw = raw.notch_filter(notch, fir_design='firwin', verbose=False)
 
-    # TODO: remove deep1010 when ready
-    raw = deep1010_stuff(raw, channel_order)
-    
     return raw
 
 
