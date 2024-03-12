@@ -5,8 +5,6 @@ import numpy as np
 from tqdm.notebook import tqdm
 import torch
 
-from utils.deep1010 import to_deep1010, to_1020
-
 def min_max_normalize(x: torch.Tensor, low=-1, high=1):
 
     xmin = x.min()
@@ -42,7 +40,6 @@ def deep1010_stuff(raw, channel_order):
     ch_names = channel_order + ['scaling']
     ch_types = ['eeg'] * len(channel_order) + ['misc']
     new_info = mne.create_info(ch_names, raw.info['sfreq'], ch_types=ch_types)
-
     
     new_raw = mne.io.RawArray(X, new_info, verbose=False)
     new_raw.set_montage(raw.get_montage())
@@ -69,6 +66,8 @@ def pick_rename_reorder_channels(raw, channel_picks, channel_order):
     
     raw.pick(picks=channel_picks['original'])
     raw.rename_channels({channel_picks['original'][i]: channel_picks['renamed'][i] for i in range(len(channel_picks['original']))})
+
+    # TODO: Confirm compatibility between channel_picks['renamed'] and channel_order
     raw.reorder_channels(channel_order)
 
     return raw
