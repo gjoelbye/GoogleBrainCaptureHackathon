@@ -1,34 +1,11 @@
 
 import mne
-
+import torch
 import numpy as np
 from tqdm.notebook import tqdm
-import torch
 
-def min_max_normalize(x: torch.Tensor, low=-1, high=1):
-
-    xmin = x.min()
-    xmax = x.max()
-    
-    x = (x - xmin) / (xmax - xmin)
-
-    # Now all scaled 0 -> 1, remove 0.5 bias
-    x -= 0.5
-    # Adjust for low/high bias and scale up
-    x += (high + low) / 2
-    return (high - low) * x
-
-def add_scaling_channel(x: torch.Tensor, data_min = -0.001, data_max = 0.001, scale_idx = -1):
-    
-    X = np.zeros((x.shape[0] + 1, x.shape[1]))
-    X[:-1] = x
-
-    max_scale = data_max - data_min
-
-    scale = 2 * (torch.clamp_max((x.max() - x.min()) / max_scale, 1.0) - 0.5)
-    X[scale_idx] = scale
-
-    return X
+from src.data.conf.eeg_channel_picks import hackathon 
+from src.data.conf.eeg_channel_order import standard_19_channel
 
 def deep1010_stuff(raw, channel_order):
     raw = raw.copy()
@@ -39,13 +16,16 @@ def deep1010_stuff(raw, channel_order):
 
     ch_names = channel_order + ['scaling']
     ch_types = ['eeg'] * len(channel_order) + ['misc']
+
     new_info = mne.create_info(ch_names, raw.info['sfreq'], ch_types=ch_types)
-    
+
     new_raw = mne.io.RawArray(X, new_info, verbose=False)
     new_raw.set_montage(raw.get_montage())
     new_raw.set_meas_date(raw.info['meas_date'])
     new_raw.set_annotations(raw.annotations)
     new_raw.set_eeg_reference(ref_channels='average', projection=False, verbose=False)
+    
+    new_raw.filter(raw.info['highpass'], raw.info['lowpass'], fir_design='firwin', verbose=False)
 
     return new_raw
 
@@ -74,9 +54,9 @@ def pick_rename_reorder_channels(raw, channel_picks, channel_order):
 
 
 def get_raw(edf_file_path: str,
-            channel_picks: list, channel_order: list,
+            channel_picks: list = hackathon, channel_order: list = standard_19_channel,
             preprocessing: bool = True, filter: bool = True, 
-            resample = 256, high_pass = 0.5, low_pass = 70, notch = 60,
+            resample = 256, highpass = 1, lowpass = 70, notch = 60,
             montage = mne.channels.make_standard_montage('standard_1020')) -> mne.io.Raw:
     """Reads and preprocesses an EDF file.
     Parameters
@@ -114,7 +94,7 @@ def get_raw(edf_file_path: str,
 
     if filter:
         raw = raw.resample(resample, verbose=False)
-        raw = raw.filter(high_pass, low_pass, fir_design='firwin', verbose=False)
+        raw = raw.filter(highpass, lowpass, fir_design='firwin', verbose=False)
         raw = raw.notch_filter(notch, fir_design='firwin', verbose=False)
 
     # TODO: remove deep1010 when ready
