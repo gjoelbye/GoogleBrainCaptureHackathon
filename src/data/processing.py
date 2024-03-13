@@ -31,7 +31,9 @@ def normalize_and_add_scaling_channel(x: torch.Tensor, low=-1, high=1, data_min 
 
     max_scale = data_max - data_min
 
-    scale = 2 * (torch.clamp_max((x.max() - x.min()) / max_scale, 1.0) - 0.5)
+    scale = 2 * (torch.clamp_max((xmin - xmax) / max_scale, 1.0) - 0.5).reshape(scale.shape[0], 1, scale.shape[1])
+    print(scale.shape)
+    print(X.shape)
     X[:, scale_idx] = scale
 
     return X
@@ -72,22 +74,24 @@ def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -
             if labels:
                 # TODO: remove try-except, was added to handle TUAR data
                 try:
-                    events = mne.events_from_annotations(raw, event_id=annotation_dict, verbose='error')
+                    events, _ = mne.events_from_annotations(raw, event_id=annotation_dict, verbose='error')
+                    events = events[np.isin(events[:, 2], list(annotation_dict.values()))]
                 except:
                     print(f'No annotations in {subject} {session_name}')
                     data_dict[subject].pop(session_name)
                     continue
 
                 tmax = tmin + tlen
-                epochs = mne.Epochs(raw, events=events[0], tmin=tmin, tmax=tmax, event_repeated='merge', verbose='error')
-
-                y = epochs.events[:, 2]
+                epochs = mne.Epochs(raw, events=events, tmin=tmin, tmax=tmax, event_repeated='merge', verbose='error')
 
                 data_dict[subject][session_name]['y'] = epochs.events[:, 2]
             else:
                 epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
 
-            data_dict[subject][session_name]['X'] = epochs.get_data()
+            X = epochs.get_data().astype(np.float32)
+            X = normalize_and_add_scaling_channel(torch.tensor(X))
+
+            data_dict[subject][session_name]['X'] = X
 
     return data_dict
 
@@ -114,8 +118,6 @@ def get_data(data_dict, subject_list=None):
 
     X = [torch.tensor(data_dict[subject][session]['X']) for subject in subject_list for session in data_dict[subject].keys()]
     X = torch.cat(X)
-
-    X = normalize_and_add_scaling_channel(X)
 
     if 'y' in data_dict[subject_list[0]][list(data_dict[subject_list[0]].keys())[0]]:
         y = [torch.tensor(data_dict[subject][session]['y']) for subject in subject_list for session in data_dict[subject].keys()]
