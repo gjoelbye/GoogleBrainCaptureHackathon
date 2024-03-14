@@ -57,12 +57,13 @@ For detailed instructions on setting up the project and accessing provided mater
 For deploying your solution to the Google Cloud Platform, follow the steps outlined in the [GCP Deployment Guide](docs/gcp_deployment.md).
 
 ## Workbench Setup
+To get you up and running with the data and the Google Cloud Platform, we have created several demos for you to run. Feel free to play with these while the case is going on, since these show examples of data exploration and analysis. For the demos, we are using the Workbench service in the Google Cloud Platform. To set up the Workbench service, follow the steps below:
 
 ### Step 1:
 Navigate and login to [Google Cloud Console](https://console.cloud.google.com/) using your new Google account (devstar).
 
 ### Step 2:
-Once logged into the console, enable appropriate APIs from the console front page (you will be prompted to enable these, don’t worry about these).
+Once logged into the console, enable appropriate APIs from the console front page (you will be prompted to enable these the first time you log in).
 
 ### Step 3:
 Search for Vertex AI in the top search bar.
@@ -77,19 +78,26 @@ Create a new workbench instance using the default options and NOT attaching a GP
 Grab a cup of coffee and wait a few minutes while the Workbench instance is spinning up. Please be patient, but if this is taking a very long time (> 5 minutes), you can come and ask for help.
 
 ### Step 6.5:
-While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
+While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
 
 ### Step 7:
 Press the “OPEN JUPYTERLAB” button and you will be redirected to your new Workbench.
 
 ### Step 8:
-Press the “git button” in your Workbench. Here, you have the option to clone a Git repository to your Workbench. Clone the newly forked repository gin the “Clone a Repository” button. Paste the link to your repository and use the default options in the pop-up.
+Press the “git button” in your Workbench. Here, you have the option to clone a Git repository to your Workbench. Clone the newly forked repository with the “Clone a Repository” button. Paste the link to your repository and use the default options in the pop-up.
 
 ### Step 9:
-Now, open a terminal in your Workbench (Click the blue “+” icon). Here, run the command `gcloud init` and select [1], [2] and Y. Go to the link, log in with your devstar account and copy the authorization code into the terminal. Select cloud project [1] hackathon2024-415815.
+Now, open a terminal in your Workbench (Click the blue “+” icon). Here, run the command 
+`$ gcloud init` 
+and select [1], [2] and Y. Go to the link, log in with your devstar account and copy the authorization code into the terminal. Select cloud project [1] hackathon2024-415815.
 
 ### Step 10:
-Press the “mount bucket” button in the menu besides the blue “+”-icon. You might have to expand the menu and file browser by dragging the right edge, since the mounting button might be hidden. Then, type in “copenhagen_medtech_hackathon” and wait for a bit while your data gets mounted. The data gets mounted in your root folder. To run the demos, move the data into the `/src/data` folder, for example by running the command `mv -v ~/copenhagen_medtech_hackathon/* ~/GoogleBrainCaptureHackathon/src/data` in the terminal. Note that this may take a while.
+Press the “mount bucket” button in the menu besides the blue “+”-icon. You might have to expand the menu and file browser by dragging the right edge, since the mounting button might be hidden. Then, type in “copenhagen_medtech_hackathon” and wait for a bit while your data gets mounted. The data gets mounted in your root folder. 
+
+### Step 10.5:
+To run the demos, move the data into the `/src/data` folder, for example by running the command 
+`$ mv -v ~/copenhagen_medtech_hackathon/* ~/GoogleBrainCaptureHackathon/src/data` 
+in the terminal. Note that this may take some time!
 
 ### Step 11:
 Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command `python3 -m pip install -r requirements.txt` (this might also take a few minutes depending on our VM).

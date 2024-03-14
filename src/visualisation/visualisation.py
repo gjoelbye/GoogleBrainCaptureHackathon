@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
-def plot_latent_pca(latent_pca, y_data, annotations, pca, first_index=0, second_index=1):
+def plot_latent_pca(latent_pca, y_data, annotations, pca, first_index=0, second_index=1, title="Latent Space after PCA"):
     fig, ax = plt.subplots(1, 2, figsize=(16, 3))
 
     # Generate a colormap that has as many colors as you have unique labels
@@ -20,12 +20,12 @@ def plot_latent_pca(latent_pca, y_data, annotations, pca, first_index=0, second_
     ax[0].scatter(latent_pca[:, first_index], latent_pca[:, second_index], c=colors)
     ax[0].set_xlabel(f"Principal Component {first_index}")
     ax[0].set_ylabel(f"Principal Component {second_index}")
-    ax[0].set_title("Latent Space after PCA")
+    ax[0].set_title(title)
 
     # Create legend
     legend_labels = [list(annotations.keys())[value] for value in unique_labels]
     legend_elements = [plt.Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=label_to_color[value.item()], markersize=10) for label, value in zip(legend_labels, unique_labels)]
-    ax[0].legend(handles=legend_elements)
+    ax[0].legend(handles=legend_elements, loc='best', fontsize=6)
 
     # plot the explained variance ratio
     ax[1].plot(pca.explained_variance_ratio_)
