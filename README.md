@@ -35,10 +35,10 @@ The challenge can be approached in various ways. Some suggested approaches inclu
 To aid participants in the hackathon, the following materials will be provided:
 
 - Two EEG datasets (BC Bhutan and TUAR) (see [data](data/))
-- A model for encoding EEG data into latent representations (see [BENDR Model](models/))
-- Sample code for simple learning algorithms (e.g., KNN) and EEG data visualizations (see [Simple Learning Algorithm Demo](demos/knn.ipynb) and [EEG Data Visualization Demo](demos/visualizations.ipynb))
-- Sample code for deploying a simple website (see [Deployment Demo](demos/app/))
-- A guide for deploying to the Google Cloud Platform (see [GCP Deployment Guide](docs/gcp_deployment.md))
+- A model for encoding EEG data into latent representations (see [BENDR Model](model/model.py))
+ - Sample code for simple learning algorithms (e.g., KNN) and EEG data visualizations (see notebooks such as [BrainCapture Data Loader Demo](braincapture_data_loader.ipynb) and [Generate Latent Representations Demo](generate_latent_representations.ipynb))
+ - Sample code for deploying a simple website (see [Deployment Demo](app.py))
+ - A guide for deploying to the Google Cloud Platform (see [GCP Deployment Guide](gcp_deployment.md))
 
 ## Evaluation Criteria
 
@@ -81,7 +81,7 @@ Grab a cup of coffee and wait a few minutes while the Workbench instance is spin
 While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
 
 ### Step 7:
-Press the “OPEN JUPYTERLAB” button and you will be redirected to your new Workbench.
+Press the “OPEN JUPYTERLAB” button beside your newly created instance and you will be redirected to your new Workbench.
 
 ### Step 8:
 Press the “git button” in your Workbench. Here, you have the option to clone a Git repository to your Workbench. Clone the newly forked repository with the “Clone a Repository” button. Paste the link to your repository and use the default options in the pop-up.
