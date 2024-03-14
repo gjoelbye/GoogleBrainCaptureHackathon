@@ -35,10 +35,10 @@ The challenge can be approached in various ways. Some suggested approaches inclu
 To aid participants in the hackathon, the following materials will be provided:
 
 - Two EEG datasets (BC Bhutan and TUAR) (see [data](data/))
-- A model for encoding EEG data into latent representations (see [BENDR Model](models/))
-- Sample code for simple learning algorithms (e.g., KNN) and EEG data visualizations (see [Simple Learning Algorithm Demo](demos/knn.ipynb) and [EEG Data Visualization Demo](demos/visualizations.ipynb))
-- Sample code for deploying a simple website (see [Deployment Demo](demos/app/))
-- A guide for deploying to the Google Cloud Platform (see [GCP Deployment Guide](docs/gcp_deployment.md))
+- A model for encoding EEG data into latent representations (see [BENDR Model](model/model.py))
+ - Sample code for simple learning algorithms (e.g., KNN) and EEG data visualizations (see notebooks such as [BrainCapture Data Loader Demo](braincapture_data_loader.ipynb) and [Generate Latent Representations Demo](generate_latent_representations.ipynb))
+ - Sample code for deploying a simple website (see [Deployment Demo](app.py))
+ - A guide for deploying to the Google Cloud Platform (see [GCP Deployment Guide](gcp_deployment.md))
 
 ## Evaluation Criteria
 
