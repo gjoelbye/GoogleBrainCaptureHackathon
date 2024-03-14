@@ -1,4 +1,4 @@
-# Copenhagen Medtech X Google Cloud X BrainCapture Hackathon
+# Copenhagen Medtech x Google Cloud x BrainCapture Hackathon
 
 <img src="assets/logos/cm_logo.png" width="30%"> <img src="assets/logos/gcp_logo.png" width="30%"> <img src="/assets/logos/bc_logo.png" width="30%">
 
