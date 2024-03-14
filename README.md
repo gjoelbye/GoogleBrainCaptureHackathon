@@ -88,14 +88,14 @@ Press the “git button” in your Workbench. Here, you have the option to clone
 
 ### Step 9:
 Now, open a terminal in your Workbench (Click the blue “+” icon). Here, run the command 
-`$ gcloud auth application-default login --no-launch-browser` 
+```$ gcloud auth application-default login --no-launch-browser```
 Go to the link, log in with your devstar account and copy the authorization code into the terminal. 
 
 ### Step 10:
 Press the “mount bucket” button in the menu besides the blue “+”-icon. You might have to expand the menu and file browser by dragging the right edge, since the mounting button might be hidden. Then, type in “copenhagen_medtech_hackathon” and wait for a bit while your data gets mounted. You might be getting an error message regarding not having permission to the bucket. If so, try to see if the data has been mounted in your root folder (besides the folder "GoogleBrainCaptureHackathon" that you cloned from your repository). If so, you can continue to the next step. If not, please ask for help.
 
 ### Step 11:
-Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command `python3 -m pip install -r requirements.txt` (this might also take a few minutes depending on our VM).
+Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command ```python3 -m pip install -r requirements.txt``` (this might also take a few minutes depending on our VM).
 
 ### Step 12:
 You’re all set up! Start by looking at `braincapture_data_loader.ipynb` and `generate_latent_representations.ipynb` to get familiar with the data and the modules we are using for this hackathon.
