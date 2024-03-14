@@ -1,5 +1,7 @@
-# ignore data folder
-/data/
+# ignore contents of data folder but keep folder
+data/*
+# except data.md
+!data/data.md
 
 # ignore local mac ds_store files
 .DS_Store
