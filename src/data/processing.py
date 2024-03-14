@@ -90,7 +90,7 @@ def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = 0
             else:
                 epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
 
-            X = epochs.get_data(verbose='error').astype(np.float32)
+            X = epochs.get_data().astype(np.float32)
 
             if X.shape[0] == 0:
                 print(f'No epochs in {subject} {session_name}')
