@@ -94,16 +94,12 @@ and select [1], [2] and Y. Go to the link, log in with your devstar account and 
 ### Step 10:
 Press the “mount bucket” button in the menu besides the blue “+”-icon. You might have to expand the menu and file browser by dragging the right edge, since the mounting button might be hidden. Then, type in “copenhagen_medtech_hackathon” and wait for a bit while your data gets mounted. The data gets mounted in your root folder. 
 
-### Step 10.5:
-To run the demos, move the data into the `/src/data` folder, for example by running the command 
-`$ mv -v ~/copenhagen_medtech_hackathon/* ~/GoogleBrainCaptureHackathon/src/data` 
-in the terminal. Note that this may take some time!
 
 ### Step 11:
 Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command `python3 -m pip install -r requirements.txt` (this might also take a few minutes depending on our VM).
 
 ### Step 12:
-You’re all set up! Start by running the `braincapture_data_loader.ipynb` notebook to get familiar with the data and the modules we are using for this hackathon.
+You’re all set up! Start by looking at `braincapture_data_loader.ipynb` and `generate_latent_representations.ipynb` to get familiar with the data and the modules we are using for this hackathon.
 
 Don’t hesitate to ask for help either in person or on Discord.
 
