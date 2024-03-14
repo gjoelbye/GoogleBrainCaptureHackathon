@@ -42,7 +42,7 @@ def normalize_and_add_scaling_channel(x: torch.Tensor, data_min = -0.001, data_m
 
 
 
-def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -0.5, tlen: float = 6, labels: bool = False):
+def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = 0, tlen: float = 5, labels: bool = False):
     """Loads the data from the data folder.
     Parameters
     ----------
@@ -84,13 +84,13 @@ def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -
                     continue
 
                 tmax = tmin + tlen
-                epochs = mne.Epochs(raw, events=events, tmin=tmin, tmax=tmax, event_repeated='drop', verbose='error')
+                epochs = mne.Epochs(raw, events=events, tmin=tmin, tmax=tmax, event_repeated='drop', verbose='error', baseline=(0,0))
 
                 data_dict[subject][session_name]['y'] = epochs.events[:, 2]
             else:
                 epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
 
-            X = epochs.get_data().astype(np.float32)
+            X = epochs.get_data(verbose='error').astype(np.float32)
 
             if X.shape[0] == 0:
                 print(f'No epochs in {subject} {session_name}')
