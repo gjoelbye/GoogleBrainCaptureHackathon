@@ -20,6 +20,55 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import tempfile
+import torch
+from tqdm import tqdm
+from copy import deepcopy
+from model.model import BendrEncoder
+from model.model import Flatten
+from sklearn.cluster import KMeans
+from src.visualisation.visualisation import plot_latent_pca
+
+max_length = lambda raw : int(raw.n_times / raw.info['sfreq']) 
+DURATION = 60
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = 'cpu'
+
+def generate_latent_representations(data, encoder, batch_size=5, device='cpu'):
+    """ Generate latent representations for the given data using the given encoder.
+    Args:
+        data (np.ndarray): The data to be encoded.
+        encoder (nn.Module): The encoder to be used.
+        batch_size (int): The batch size to be used.
+    Returns:
+        np.ndarray: The latent representations of the given data.
+    """
+    data = data.to(device)
+
+    latent_size = (1536, 4) # do not change this 
+    latent = np.empty((data.shape[0], *latent_size))
+
+
+    for i in tqdm(range(0, data.shape[0], batch_size)):
+        latent[i:i+batch_size] = encoder(data[i:i+batch_size]).cpu().detach().numpy()
+
+    return latent.reshape((latent.shape[0], -1))
+
+def load_model(device='cpu'):
+    """Loading BendrEncoder model
+    Args:
+        device (str): The device to be used.
+    Returns:
+        BendrEncoder (nn.Module): The model
+    """
+
+    # Initialize the model
+    encoder = BendrEncoder()
+
+    # Load the pretrained model
+    encoder.load_state_dict(deepcopy(torch.load("encoder.pt", map_location=device)))
+    encoder = encoder.to(device)
+
+    return encoder
 
 def make_dir(dir):
     try:
@@ -50,50 +99,68 @@ def get_file_paths(edf_file_buffers):
 
     return temp_dir + '/', paths
 
+def plot_clusters(components, labels):
+    """
+    input: 
+        components: 2D array of the principal components
+        labels: labels of the clusters
+    
+    output: None"""
+
+    # Plot clusters
+    fig, ax = plt.subplots(figsize=(8, 6))
+    unique_labels = np.unique(labels)
+    for cluster_label in unique_labels:
+        ax.scatter(components[labels == cluster_label, 0], components[labels == cluster_label, 1], label=f'Cluster {cluster_label}')
+
+    ax.set_title('Clusters using PCA')
+    ax.set_xlabel('Principal Component 0')
+    ax.set_ylabel('Principal Component 1')
+    ax.legend()
+
+    st.pyplot(fig)
+
 def main():
     st.title('Demonstration of EEG data pipeline')
     st.write("""
-             This is a simple app for visualising and analysing EEG data. Start by uploading your .EDF files you want to analyse.
+             This is a simple app for visualising and analysing EEG data. Start by uploading the .EDF files you want to analyse.
              """)
     
+    # 1: Upload EDF files
     edf_file_buffers = st.file_uploader('Upload .EDF files', type='edf', accept_multiple_files=True)
     
+
     if edf_file_buffers:
-        # for edf_file_buffer in edf_file_buffers:
         data_folder, file_paths = get_file_paths(edf_file_buffers)
         
         
         if st.button("Process data"):
             st.write("Data processing initiated")
-            st.write(f"your file paths: {file_paths}")
-            for file_path in file_paths:
-                raw = get_raw(file_path)
-                st.pyplot(raw.plot(n_channels=32, scalings='auto', title='BrainCapture EEG data'))
+          
+            # 2: Chop the .edf data into 5 second windows
+            data_dict = load_data_dict(data_folder_path=data_folder, annotation_dict=braincapture_annotations, tlen=5, labels=False)
+            all_subjects = list(data_dict.keys())
+            X = get_data(data_dict, all_subjects)
 
-            data_dict = load_data_dict(data_folder_path=data_folder, annotation_dict=braincapture_annotations, tmin=-0.5, tlen=6, labels=True)
-            type(data_dict)
-            # raw = get_raw(file_path)
-            # raws.append(raw)
-            # st.pyplot(raw.plot(n_channels=32, scalings='auto', title='BrainCapture EEG data'))
-        
+            # 3: Load the model and generate latent representations
+            encoder = load_model(device)   
+            latent_representations = generate_latent_representations(X, encoder, device=device)
 
-    # if edf_file_buffer is not None:
-    #     # raw = get_raw(os.path.join(os.getcwd() + '/data/v4.0/S001', edf_file_buffer.name))
-    #     raw = get_raw(edf_file_buffer)
-    #     st.pyplot(raw.plot(n_channels=32, scalings='auto', title='BrainCapture EEG data'))
+            # 4: Perform KMeans clustering on the latent representations
+            st.write("Running K-means with n=5 clusters")
+            kmeans = KMeans(n_clusters=5, random_state=42)
+            kmeans.fit(latent_representations)
+            labels = kmeans.labels_
 
-    # if img_file_buffer is not None:
-    #     image = Image.open(img_file_buffer)
-    #     img_array = np.array(image)
+            # 5: Visualize the clusters using PCA 
+            st.write("Visualising clusters using PCA")  
+            # Apply PCA
+            pca = PCA(n_components=2)
+            components = pca.fit_transform(latent_representations)
 
-    
-    #     st.image(
-    #         image,
-    #         caption=f"You amazing image has shape {img_array.shape[0:2]}",
-    #         use_column_width=True,
-    # )
-    
-    # plot_decision_boundary(X_train_pca, y_train, targets, knn)
-    # visualize_PCA(X_train_pca, y_train, targets, split='Training')
-    # visualize_PCA(X_test_pca, y_test, targets, split='Testing')
+            # Plot clusters
+            plot_clusters(components, labels)
+
+
+
 main()
