@@ -9,10 +9,7 @@ mne
 torch
 tabulate
 scipy
-copy
 pyedflib
 google # try google.cloud
-logging
 streamlit
-PIL
 tempfile
