@@ -1,4 +1,4 @@
-# Copenhagen Medtech X Google Cloud X BrainCapture Hackathon
+# Copenhagen Medtech x Google Cloud x BrainCapture Hackathon
 
 <img src="assets/logos/cm_logo.png" width="30%"> <img src="assets/logos/gcp_logo.png" width="30%"> <img src="/assets/logos/bc_logo.png" width="30%">
 
@@ -81,7 +81,7 @@ Grab a cup of coffee and wait a few minutes while the Workbench instance is spin
 While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
 
 ### Step 7:
-Press the “OPEN JUPYTERLAB” button and you will be redirected to your new Workbench.
+Press the “OPEN JUPYTERLAB” button beside your newly created instance and you will be redirected to your new Workbench.
 
 ### Step 8:
 Press the “git button” in your Workbench. Here, you have the option to clone a Git repository to your Workbench. Clone the newly forked repository with the “Clone a Repository” button. Paste the link to your repository and use the default options in the pop-up.
@@ -98,12 +98,22 @@ Press the “mount bucket” button in the menu besides the blue “+”-icon. Y
 Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command `python3 -m pip install -r requirements.txt` (this might also take a few minutes depending on our VM).
 
 ### Step 12:
-You’re all set up! Start by running the `braincapture_data_loader.ipynb` notebook to get familiar with the data and the modules we are using for this hackathon.
+You’re all set up! Start by looking at `braincapture_data_loader.ipynb` and `generate_latent_representations.ipynb` to get familiar with the data and the modules we are using for this hackathon.
 
 Don’t hesitate to ask for help either in person or on Discord.
 
 Happy coding!
 
+## Download EDFbrowser
+As you saw in the introduction of this Hackathon, it's possible to plot EEGs in a beautiful rainbow color flow across electrode channels. This was achieved using EDFbrowser, a free tool with multiple applications for working with EEG data. Linux and Windows users can find an easy guide to installing this software at the following link:
+
+https://www.teuniz.net/edfbrowser/index.html
+
+It is possible for an OS system (Mac) to launch EDFbrowser, but it requires a bit more effort than the aforementioned method. Some of the MedTech heads (the people who look a bit tired) have followed this guide with success, and they are more than happy to assist with any problems, offering tricks or tips.
+
+https://www.researchgate.net/publication/365604370_Compiling_EDFBrowser_on_Mac_2022_Nov_macOS130_Ventura
+
+We strongly encourage the use of EDFbrowser if you are interested in visualizing the data you are working with, as it also provides tools for filtering, creating power spectra and much more!
 
 ## Getting help and support
 
