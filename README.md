@@ -109,6 +109,16 @@ Don’t hesitate to ask for help either in person or on Discord.
 
 Happy coding!
 
+## Download EDFbrowser
+As you saw in the introduction of this Hackathon, it's possible to plot EEGs in a beautiful rainbow color flow across electrode channels. This was achieved using EDFbrowser, a free tool with multiple applications for working with EEG data. Linux and Windows users can find an easy guide to installing this software at the following link:
+
+https://www.teuniz.net/edfbrowser/index.html
+
+It is possible for an OS system (Mac) to launch EDFbrowser, but it requires a bit more effort than the aforementioned method. Some of the MedTech heads (the people who look a bit tired) have followed this guide with success, and they are more than happy to assist with any problems, offering tricks or tips.
+
+https://www.researchgate.net/publication/365604370_Compiling_EDFBrowser_on_Mac_2022_Nov_macOS130_Ventura
+
+We strongly encourage the use of EDFbrowser if you are interested in visualizing the data you are working with, as it also provides tools for filtering, creating power spectra and much more!
 
 ## Getting help and support
 
