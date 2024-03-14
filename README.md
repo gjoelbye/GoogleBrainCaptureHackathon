@@ -81,7 +81,7 @@ Grab a cup of coffee and wait a few minutes while the Workbench instance is spin
 While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
 
 ### Step 7:
-Press the “OPEN JUPYTERLAB” button and you will be redirected to your new Workbench.
+Press the “OPEN JUPYTERLAB” button beside your newly created instance and you will be redirected to your new Workbench.
 
 ### Step 8:
 Press the “git button” in your Workbench. Here, you have the option to clone a Git repository to your Workbench. Clone the newly forked repository with the “Clone a Repository” button. Paste the link to your repository and use the default options in the pop-up.
