@@ -6,6 +6,7 @@ standard_19_channel = [
              'O1', 'O2'
 ]
 
+#TODO: add ECG
 standard_27_channel = [
                    'Fp1', 'Fp2',
     'F9', 'F7', 'F3', 'Fz', 'F4', 'F8', 'F10',

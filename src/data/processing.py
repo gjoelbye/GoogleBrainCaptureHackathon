@@ -7,16 +7,20 @@ from src.data.utils.eeg import get_raw
 
 import torch
 
-
-def normalize_and_add_scaling_channel(x: torch.Tensor, low=-1, high=1, data_min = -0.001, data_max = 0.001, scale_idx = -1):
-
+def normalize_and_add_scaling_channel(x: torch.Tensor, data_min = -0.001, data_max = 0.001, low=-1, high=1, scale_idx=-1):
     if len(x.shape) == 2:
         xmin = x.min()
         xmax = x.max()
-
+        if xmax - xmin == 0:
+            x = 0
+            return x
     elif len(x.shape) == 3:
         xmin = torch.min(torch.min(x, keepdim=True, dim=1)[0], keepdim=True, dim=-1)[0]
         xmax = torch.max(torch.max(x, keepdim=True, dim=1)[0], keepdim=True, dim=-1)[0]
+        constant_trials = (xmax - xmin) == 0
+        if torch.any(constant_trials):
+            # If normalizing multiple trials, stabilize the normalization
+            xmax[constant_trials] = xmax[constant_trials] + 1e-6
 
     x = (x - xmin) / (xmax - xmin)
 
@@ -24,8 +28,8 @@ def normalize_and_add_scaling_channel(x: torch.Tensor, low=-1, high=1, data_min 
     x -= 0.5
     # Adjust for low/high bias and scale up
     x += (high + low) / 2
-    x = (high - low) * x
-    
+    x *= (high - low)
+
     X = torch.zeros((x.shape[0], x.shape[1] + 1, x.shape[2]))
     X[:, :-1] = x
 
@@ -38,7 +42,7 @@ def normalize_and_add_scaling_channel(x: torch.Tensor, low=-1, high=1, data_min 
 
 
 
-def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -0.5, tlen: float = 6, labels: bool = False):
+def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = 0, tlen: float = 5, labels: bool = False):
     """Loads the data from the data folder.
     Parameters
     ----------
@@ -72,22 +76,30 @@ def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = -
             if labels:
                 # TODO: remove try-except, was added to handle TUAR data
                 try:
-                    events = mne.events_from_annotations(raw, event_id=annotation_dict, verbose='error')
+                    events, _ = mne.events_from_annotations(raw, event_id=annotation_dict, verbose='error')
+                    #events = events[np.isin(events[:, 2], list(annotation_dict.values()))]
                 except:
                     print(f'No annotations in {subject} {session_name}')
                     data_dict[subject].pop(session_name)
                     continue
 
                 tmax = tmin + tlen
-                epochs = mne.Epochs(raw, events=events[0], tmin=tmin, tmax=tmax, event_repeated='merge', verbose='error')
-
-                y = epochs.events[:, 2]
+                epochs = mne.Epochs(raw, events=events, tmin=tmin, tmax=tmax, event_repeated='drop', verbose='error', baseline=(0,0))
 
                 data_dict[subject][session_name]['y'] = epochs.events[:, 2]
             else:
                 epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
 
-            data_dict[subject][session_name]['X'] = epochs.get_data()
+            X = epochs.get_data().astype(np.float32)
+
+            if X.shape[0] == 0:
+                print(f'No epochs in {subject} {session_name}')
+                data_dict[subject].pop(session_name)
+                continue
+
+            X = normalize_and_add_scaling_channel(torch.tensor(X))
+
+            data_dict[subject][session_name]['X'] = X
 
     return data_dict
 
@@ -114,8 +126,6 @@ def get_data(data_dict, subject_list=None):
 
     X = [torch.tensor(data_dict[subject][session]['X']) for subject in subject_list for session in data_dict[subject].keys()]
     X = torch.cat(X)
-
-    X = normalize_and_add_scaling_channel(X)
 
     if 'y' in data_dict[subject_list[0]][list(data_dict[subject_list[0]].keys())[0]]:
         y = [torch.tensor(data_dict[subject][session]['y']) for subject in subject_list for session in data_dict[subject].keys()]
