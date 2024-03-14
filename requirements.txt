@@ -9,13 +9,6 @@ mne
 torch
 tabulate
 scipy
-braindecode
-os 
-copy
 pyedflib
 google # try google.cloud
-logging
 streamlit
-sys 
-PIL
-tempfile
