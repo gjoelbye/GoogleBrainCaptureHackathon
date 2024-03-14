@@ -9,3 +9,5 @@ __pycache__/
 
 *.pt
 *.ckpt
+*.npy
+*.h5py
