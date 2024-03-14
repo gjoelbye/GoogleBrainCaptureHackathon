@@ -1,9 +1,15 @@
 # app.py
 import streamlit as st
 import pandas as pd
-# from unsupervised.knn import plot_decision_boundary
-# import plotly.express as px
-# import mne
+import sys
+import os
+sys.path.append(os.getcwd() + '/')
+from src.data.utils.eeg import get_raw
+from src.data.processing import load_data_dict, get_data
+from src.data.conf.eeg_annotations import braincapture_annotations
+from src.data.conf.eeg_channel_picks import hackathon
+from src.data.conf.eeg_channel_order import standard_19_channel
+from src.data.conf.eeg_annotations import braincapture_annotations, tuh_eeg_artefact_annotations
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -12,90 +18,82 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+import tempfile
 
-# Load the iris dataset
-iris = datasets.load_iris()
-X = iris.data
-y = iris.target
-targets = iris.target_names
+def make_dir(dir):
+    try:
+        os.makedirs(dir)
+    except FileExistsError:
+        pass
 
-# check the number of different classes in y
-print('Number of different classes in y: ', len(np.unique(y)))
+def get_file_paths(edf_file_buffers):
+    """
+    input: edf_file_buffers: list of files uploaded by user
 
-# Split the dataset into a training set and a test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+    output: paths: paths to the files
+    """
+    paths = []
+    # make tempoary directory to store the files
+    temp_dir = tempfile.mkdtemp()
+    print(temp_dir)
+    for edf_file_buffer in edf_file_buffers:
+        folder_name = os.path.join(temp_dir, edf_file_buffer.name[:4])
+        make_dir(folder_name)
+        # make tempoary file
+        path = os.path.join(folder_name , edf_file_buffer.name)
+        # write bytesIO object to file
+        with open(path, 'wb') as f:
+            f.write(edf_file_buffer.getvalue())
 
-# Standardize the training data
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
+        paths.append(path)
 
-# Use the same scaler to standardize the test data
-X_test_scaled = scaler.transform(X_test)
-
-# Perform PCA to reduce the dimensionality of the standardized training data
-pca = PCA(n_components=2)
-X_train_pca = pca.fit_transform(X_train_scaled)
-
-# Apply the same PCA transformation to the standardized test data
-X_test_pca = pca.transform(X_test_scaled)
-
-# Create a k-NN classifier with 5 neighbors
-knn = KNeighborsClassifier(n_neighbors=5)
-
-# Train the classifier on the PCA-transformed training data
-knn.fit(X_train_pca, y_train)
-
-# Predict the test set
-y_pred = knn.predict(X_test_pca)
-
-# Print the accuracy
-print('Balanced accuracy: ', balanced_accuracy_score(y_test, y_pred))
-
-def plot_decision_boundary(X_train_pca, y_train, targets, knn):
-
-    # Plot the decision boundary
-    h = .02
-    x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
-    y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-    Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-    plt.figure()
-    plt.pcolormesh(xx, yy, Z, alpha=0.1)
-    colors = ['navy', 'turquoise', 'darkorange'] # change in accordance with number of classes
-    lw = 2
-    for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), targets):
-        plt.scatter(X_train_pca[y_train == i, 0], X_train_pca[y_train == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
-    plt.legend(loc='best', shadow=False, scatterpoints=1)
-    plt.title('PCA of IRIS Training Dataset')
-    # st.plot using get current (matplotlib) figure 
-    st.pyplot(plt.gcf())
-
-def visualize_PCA(X_pca, y_train, targets, split='Training'):
-
-    # Visualize the PCA-transformed training data
-    plt.figure(figsize=(6,6))
-    colors = ['navy', 'turquoise', 'darkorange']
-    lw = 2
-    for color, i, target_name in zip(colors, np.arange(len(np.unique(y))), targets):
-        plt.scatter(X_pca[y_train == i, 0], X_pca[y_train == i, 1], color=color, alpha=.8, lw=lw, label=target_name)
-    plt.legend(loc='best', shadow=False, scatterpoints=1)
-    plt.title(f'PCA of IRIS {split} Dataset')
-    plt.xlabel('PC1')
-    plt.ylabel('PC2')
-    # st.plot using get current (matplotlib) figure 
-    st.pyplot(plt.gcf())
-
+    return temp_dir + '/', paths
 
 def main():
-    st.title('Hackathon Example App')
+    st.title('Demonstration of EEG data pipeline')
     st.write("""
-             This is a simple app to demonstrate .EDF file upload and visualization.
+             This is a simple app for visualising and analysing EEG data. Start by uploading your .EDF files you want to analyse.
              """)
     
-    plot_decision_boundary(X_train_pca, y_train, targets, knn)
-    visualize_PCA(X_train_pca, y_train, targets, split='Training')
-    visualize_PCA(X_test_pca, y_test, targets, split='Testing')
+    edf_file_buffers = st.file_uploader('Upload .EDF files', type='edf', accept_multiple_files=True)
+    
+    if edf_file_buffers:
+        # for edf_file_buffer in edf_file_buffers:
+        data_folder, file_paths = get_file_paths(edf_file_buffers)
+        
+        
+        if st.button("Process data"):
+            st.write("Data processing initiated")
+            st.write(f"your file paths: {file_paths}")
+            for file_path in file_paths:
+                raw = get_raw(file_path)
+                st.pyplot(raw.plot(n_channels=32, scalings='auto', title='BrainCapture EEG data'))
 
-if __name__ == "__main__":
-    main()
+            data_dict = load_data_dict(data_folder_path=data_folder, annotation_dict=braincapture_annotations, tmin=-0.5, tlen=6, labels=True)
+            type(data_dict)
+            # raw = get_raw(file_path)
+            # raws.append(raw)
+            # st.pyplot(raw.plot(n_channels=32, scalings='auto', title='BrainCapture EEG data'))
+        
+
+    # if edf_file_buffer is not None:
+    #     # raw = get_raw(os.path.join(os.getcwd() + '/data/v4.0/S001', edf_file_buffer.name))
+    #     raw = get_raw(edf_file_buffer)
+    #     st.pyplot(raw.plot(n_channels=32, scalings='auto', title='BrainCapture EEG data'))
+
+    # if img_file_buffer is not None:
+    #     image = Image.open(img_file_buffer)
+    #     img_array = np.array(image)
+
+    
+    #     st.image(
+    #         image,
+    #         caption=f"You amazing image has shape {img_array.shape[0:2]}",
+    #         use_column_width=True,
+    # )
+    
+    # plot_decision_boundary(X_train_pca, y_train, targets, knn)
+    # visualize_PCA(X_train_pca, y_train, targets, split='Training')
+    # visualize_PCA(X_test_pca, y_test, targets, split='Testing')
+main()
