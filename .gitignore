@@ -13,3 +13,9 @@ __pycache__/
 *.ckpt
 *.npy
 *.h5py
+
+# ignore virtual env
+.venv
+
+# ignore secrets
+.env
