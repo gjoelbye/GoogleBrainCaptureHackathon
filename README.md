@@ -11,7 +11,7 @@ This hackathon challenges participants to leverage artificial intelligence techn
 ## What are EEGs?
 Electroencephalography (EEG) is a non-invasive method for recording electrical activity in the brain. It is commonly used to diagnose epilepsy, sleep disorders, and other brain-related conditions. EEGs are also used in research to study brain activity and cognitive processes. By analyzing EEG data, researchers can gain insights into brain function and develop new treatments for neurological disorders. An example of an EEG signal is shown below.
 
-<img src="assets/eeg_example.jpg" width="900">
+<img src="assets/eeg_example.png" width="900">
 
 ## Scope of the hackathon
 
@@ -52,9 +52,9 @@ Submissions will be evaluated based on the following criteria:
 
 # Getting Started/Further Reading
 
-For detailed instructions on setting up the project and accessing provided materials, refer to the [Getting Started Guide](docs/getting_started.md).
+For detailed instructions on setting up the project and accessing provided materials, refer to the Workbench setup below.
 
-For deploying your solution to the Google Cloud Platform, follow the steps outlined in the [GCP Deployment Guide](docs/gcp_deployment.md).
+For deploying your solution to the Google Cloud Platform, follow the steps outlined in the [GCP Deployment Guide](gcp_deployment.md).
 
 ## Workbench Setup
 To get you up and running with the data and the Google Cloud Platform, we have created several demos for you to run. Feel free to play with these while the case is going on, since these show examples of data exploration and analysis. For the demos, we are using the Workbench service in the Google Cloud Platform. To set up the Workbench service, follow the steps below:
@@ -78,7 +78,7 @@ Create a new workbench instance using the default options and NOT attaching a GP
 Grab a cup of coffee and wait a few minutes while the Workbench instance is spinning up. Please be patient, but if this is taking a very long time (> 5 minutes), you can come and ask for help.
 
 ### Step 6.5:
-While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
+While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at `https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon` and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
 
 ### Step 7:
 Press the “OPEN JUPYTERLAB” button beside your newly created instance and you will be redirected to your new Workbench.
@@ -95,7 +95,7 @@ Go to the link, log in with your devstar account and copy the authorization code
 Press the “mount bucket” button in the menu besides the blue “+”-icon. You might have to expand the menu and file browser by dragging the right edge, since the mounting button might be hidden. Then, type in “copenhagen_medtech_hackathon” and wait for a bit while your data gets mounted. You might be getting an error message regarding not having permission to the bucket. If so, try to see if the data has been mounted in your root folder (besides the folder "GoogleBrainCaptureHackathon" that you cloned from your repository). If so, you can continue to the next step. If not, please ask for help.
 
 ### Step 11:
-Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command ```python3 -m pip install -r requirements.txt``` (this might also take a few minutes depending on our VM).
+Now we need to install our dependencies for the project! Navigate to the `GoogleBrainCaptureHackathon` directory and run the command ```python3 -m pip install -r requirements.txt``` (this might also take a few minutes depending on your VM).
 
 ### Step 12:
 You’re all set up! Start by looking at `braincapture_data_loader.ipynb` and `generate_latent_representations.ipynb` to get familiar with the data and the modules we are using for this hackathon.
@@ -118,7 +118,3 @@ We strongly encourage the use of EDFbrowser if you are interested in visualizing
 ## Getting help and support
 
 If you have any questions or need help with the hackathon, please reach out to the organizers or post your question in the Discord. We also encourage you to collaborate with other teams to solev issues and share ideas.
-
-## License
-
-This project is licensed under the [LICENSE](LICENSE) file.
