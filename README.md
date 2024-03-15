@@ -60,13 +60,13 @@ For deploying your solution to the Google Cloud Platform, follow the steps outli
 To get you up and running with the data and the Google Cloud Platform, we have created several demos for you to run. Feel free to play with these while the case is going on, since these show examples of data exploration and analysis. For the demos, we are using the Workbench service in the Google Cloud Platform. To set up the Workbench service, follow the steps below:
 
 ### Step 1:
-Navigate and login to [Google Cloud Console](https://console.cloud.google.com/) using your new Google account (devstar).
+Navigate and login to [Google Cloud Console](https://console.cloud.google.com/) using your new Google account (devstar). Select the GCP project stated along your account on the paper slip using the dropdown menu in the top left.
 
 ### Step 2:
-Once logged into the console, enable appropriate APIs from the console front page (you will be prompted to enable these the first time you log in).
+Once you have selected your project, search for Vertex AI in the top search bar and navigate here.
 
 ### Step 3:
-Search for Vertex AI in the top search bar.
+You might be prompted for enabling some API’s during this setup. You should enable these as these are crucial for the cloud services to run.
 
 ### Step 4:
 Open the side panel and click on “Workbench”.
