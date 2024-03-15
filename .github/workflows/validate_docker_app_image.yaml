@@ -6,8 +6,7 @@ name: Build Docker Image
 
 on:
   push:
-    branches:
-      - "github-actions" # TODO: Should be master branch once done
+    branches: [ main ]
 
 env:
   TAG: sebastianbitsch/brainzapp

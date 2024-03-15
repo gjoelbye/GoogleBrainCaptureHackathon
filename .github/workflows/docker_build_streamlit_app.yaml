@@ -3,8 +3,9 @@ name: Push Docker Image to GCP
 
 on:
   push:
-    branches:
-      - github-actions # TODO: Temporary, change to master when done testing
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
   PROJECT_ID: medtech-hack24cop-4042 # TODO: Should (probably) be secret, but project closes automatically in two days soooo...
