@@ -2,17 +2,12 @@
 # expected BEFORE we push it to GCP. No need to push it to GCP and then 
 # find out it doesn't work.
 
-# NOTE: The linux/amd64 image is only built once in this workflow. 
-# The image is built once, and the following steps use the internal 
-# cache from the first Build and push step. The second Build and push 
-# step only builds linux/arm64. (we want to test arm for macs :) )
-
-name: Validate Docker Image of Streamlit App 
+name: Build Docker Image
 
 on:
   push:
     branches:
-      - "github-actions"
+      - "github-actions" # TODO: Should be master branch once done
 
 env:
   LATEST_TAG: sebastianbitsch/brainzapp:latest
@@ -38,6 +33,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
+          platform: linux/x86_64 # We build for ARM only for now
           tags: ${{ env.LATEST_TAG }}
-          cache-from: type=registry,ref=${{ env.LATEST_TAG }}
-          cache-to: type=inline
+          cache-from: type=registry,ref=${{ env.LATEST_TAG }} # Cache the image for speed
+          cache-to: type=inline                               # Cache the image for speed

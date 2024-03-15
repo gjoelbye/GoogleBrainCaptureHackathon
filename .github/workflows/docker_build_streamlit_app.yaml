@@ -1,5 +1,5 @@
 
-name: Build app and create a release in Cloud Deploy
+name: Push Docker Image to GCP
 
 on:
   push:
