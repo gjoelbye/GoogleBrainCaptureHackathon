@@ -32,8 +32,13 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
-          platform: linux/x86_64 # We build for ARM only for now
-          tags: ${{ env.LATEST_TAG }}
-          cache-from: type=registry,ref=${{ env.LATEST_TAG }} # Cache the image for speed
-          cache-to: type=inline                               # Cache the image for speed
+          platforms: linux/amd64,linux/arm64
+          file: ./docker/prod/Dockerfile
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=local,src=${{ steps.composer-cache.outputs.dir }}
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache
+            type=local,dest=${{ steps.composer-cache.outputs.dir }}
