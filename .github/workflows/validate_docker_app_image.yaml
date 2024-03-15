@@ -13,9 +13,18 @@ env:
   TAG: sebastianbitsch/brainzapp
 
 jobs:
-  docker:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v4
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -34,5 +43,9 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64, linux/arm64
-          tags: ${{ env.TAG }}:latest
+          platforms: ${{ matrix.platform }}
+          tags: ${{ env.TAG }}${{ matrix.platform }}
+
+      - name: Extract labels
+        id: meta
+        run: echo ::set-output name=labels::$(echo "${GITHUB_SHA}" | cut -c1-8)
