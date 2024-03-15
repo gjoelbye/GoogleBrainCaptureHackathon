@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "GoogleBrainCaptureHackathon"
+version = "0.0.1"
+description = "Google x BrainCapture x CopenhagenMedtech hackathon project on EEG Data"
+authors = [
+  { name = "bigbrainz", email = "big@brain.zzz" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
