@@ -15,7 +15,7 @@ on:
       - "github-actions"
 
 env:
-  LATEST_TAG: raixsplitter/brainzapp:latest
+  LATEST_TAG: sebastianbitsch/brainzapp:latest
 
 jobs:
   docker:
@@ -39,3 +39,5 @@ jobs:
         with:
           push: true
           tags: ${{ env.LATEST_TAG }}
+          cache-from: type=registry,ref=${{ env.LATEST_TAG }}
+          cache-to: type=inline
