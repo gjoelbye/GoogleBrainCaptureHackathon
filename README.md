@@ -115,6 +115,22 @@ https://www.researchgate.net/publication/365604370_Compiling_EDFBrowser_on_Mac_2
 
 We strongly encourage the use of EDFbrowser if you are interested in visualizing the data you are working with, as it also provides tools for filtering, creating power spectra and much more!
 
+When EDFbrowser is up and running you can start by dragging an edf-file into the browser - this should automatically load and show the EEG channels. Following this you can apply standard filtering as such: 
+
+### Step 1:
+Navigate to the "filtering" button in the top-bar, and press "Classic Butterworth, Bessel, Chebyshev, etc." on the dropdown menu. 
+
+### Step 2: 
+This should show a windom named "Add a filter". Apply a Highpass filter at frequency 1 with all signals choosen. Don't change anything besides the tree points just mentioned. 
+
+### Step 3: 
+Navigate back to "Add a filter". Apply a Lowpass filter at frequency 70 with all signals choosen.
+
+### Step 4: 
+Lastly, navigate back to "Add a filter" again. Apply a Notch filter at frequency 50 with all signals choosen.
+
+Great job! Now you can grab a cup of coffee as celebration. 
+
 ## Getting help and support
 
 If you have any questions or need help with the hackathon, please reach out to the organizers or post your question in the Discord. We also encourage you to collaborate with other teams to solev issues and share ideas.
