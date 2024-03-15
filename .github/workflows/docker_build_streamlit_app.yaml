@@ -1,21 +1,21 @@
 # Automatic building and push to Docker github repository. And testing if it works
 # It is only testing on linux and python 3.10
 
-name: "Build Streamlit Docker Image"
+# name: "Build Streamlit Docker Image"
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+# on:
+#   push:
+#     branches: [ master ]
+#   pull_request:
+#     branches: [ master ]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10", "3.8"]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build the Docker image
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         python-version: ["3.10", "3.8"]
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Build the Docker image
