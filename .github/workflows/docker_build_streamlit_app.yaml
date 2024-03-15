@@ -23,7 +23,7 @@ jobs:
     needs: first
     # Check if GOOGLE_CREDENTIALS are available, we cant currently create service account 
     # credentials so we skip this step and instead upload the docker image manually for now
-    if: "secrets.GOOGLE_CREDENTIALS" # Won't be set, i.e. this step will be skipped
+    if: 'secrets.GOOGLE_CREDENTIALS' # Won't be set, i.e. this step will be skipped
     permissions:
       contents: 'read'
       id-token: 'write'
