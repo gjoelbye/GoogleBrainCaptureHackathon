@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - linux/amd64
+          # - linux/amd64 # can always comment in
           - linux/arm64
     steps:
       - 
@@ -44,8 +44,4 @@ jobs:
           context: .
           push: true
           platforms: ${{ matrix.platform }}
-          tags: ${{ env.TAG }}${{ matrix.platform }}
-
-      - name: Extract labels
-        id: meta
-        run: echo ::set-output name=labels::$(echo "${GITHUB_SHA}" | cut -c1-8)
+          tags: ${{ env.TAG }}:latest
