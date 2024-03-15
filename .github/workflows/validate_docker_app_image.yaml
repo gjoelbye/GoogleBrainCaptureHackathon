@@ -45,3 +45,5 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: ${{ env.TAG }}:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
