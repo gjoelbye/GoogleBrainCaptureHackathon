@@ -1,21 +1,54 @@
-# Automatic building and push to Docker github repository. And testing if it works
-# It is only testing on linux and python 3.10
 
-# name: "Build Streamlit Docker Image"
+name: Build app and create a release in Cloud Deploy
 
-# on:
-#   push:
-#     branches: [ master ]
-#   pull_request:
-#     branches: [ master ]
+on:
+  push:
+    branches:
+      - github-actions # TODO: Temporary, change to master when done testing
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         python-version: ["3.10", "3.8"]
-#     steps:
-#       - uses: actions/checkout@v2
-#       - name: Build the Docker image
+env:
+  PROJECT_ID: medtech-hack24cop-4042 # TODO: Should (probably) be secret, but project closes automatically in two days soooo...
+  GAR_LOCATION: europe-west1
+  REGION: europe-west1
+  APP: app
+
+jobs:
+  first: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: "build"
+        run: |-
+          ls
+  deploy:
+    needs: first
+    # Check if GOOGLE_CREDENTIALS are available, we cant currently create service account 
+    # credentials so we skip this step and instead upload the docker image manually for now
+    if: "secrets.GOOGLE_CREDENTIALS" # Won't be set, i.e. this step will be skipped
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v3'
+
+      - name: 'Google auth'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}' # Not preferred over WIF, but good enough for a hackathon tbh. See: https://github.com/google-github-actions/auth?tab=readme-ov-file#sake
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: '${{ env.PROJECT_ID }}'
+
+      - name: 'Docker auth'
+        run: |-
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      - name: 'Build and push container'
+        run: |-
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.APP }}/${{ env.APP }}:${{ github.sha }}" ./app
+          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.APP }}/${{ env.APP }}:${{ github.sha }}"
