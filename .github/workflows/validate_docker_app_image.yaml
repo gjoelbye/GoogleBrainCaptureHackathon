@@ -10,7 +10,7 @@ on:
       - "github-actions" # TODO: Should be master branch once done
 
 env:
-  LATEST_TAG: sebastianbitsch/brainzapp:latest
+  TAG: sebastianbitsch/brainzapp
 
 jobs:
   docker:
@@ -35,10 +35,10 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          file: ./docker/prod/Dockerfile
-          cache-from: |
-            type=local,src=/tmp/.buildx-cache
-            type=local,src=${{ steps.composer-cache.outputs.dir }}
-          cache-to: |
-            type=local,dest=/tmp/.buildx-cache
-            type=local,dest=${{ steps.composer-cache.outputs.dir }}
+          tags: ${{ TAG }}:amd:latest ${{ TAG }}:arm:latest
+          cache-from: 
+            type=registry,ref=${{ TAG }}:amd:latest
+            type=registry,ref=${{ TAG }}:arm:latest
+          cache-to: 
+            type=inline
+            type=inline
