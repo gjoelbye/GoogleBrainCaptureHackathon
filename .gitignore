@@ -13,3 +13,6 @@ __pycache__/
 *.ckpt
 *.npy
 *.h5py
+
+.venv
+.env
