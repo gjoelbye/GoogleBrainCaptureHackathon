@@ -35,10 +35,10 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ TAG }}:amd:latest ${{ TAG }}:arm:latest
+          tags: ${{ env.TAG }}:amd:latest ${{ env.TAG }}:arm:latest
           cache-from: 
-            type=registry,ref=${{ TAG }}:amd:latest
-            type=registry,ref=${{ TAG }}:arm:latest
+            type=registry,ref=${{ env.TAG }}:amd:latest
+            type=registry,ref=${{ env.TAG }}:arm:latest
           cache-to: 
             type=inline
             type=inline
