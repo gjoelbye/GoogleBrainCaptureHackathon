@@ -78,7 +78,7 @@ Create a new workbench instance using the default options and NOT attaching a GP
 Grab a cup of coffee and wait a few minutes while the Workbench instance is spinning up. Please be patient, but if this is taking a very long time (> 5 minutes), you can come and ask for help.
 
 ### Step 6.5:
-While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at `https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon` and fork it to your own GitHub account. It would probably be a good idea to make the forked repository private and share it with the rest of the group members. You’ll need this in step 8.
+While your Workbench is spinning up, one of the group members should navigate to the repository [GitHub Repository](https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon) at `https://github.com/AndersGMadsen/GoogleBrainCaptureHackathon` and fork it to your own GitHub account.
 
 ### Step 7:
 Press the “OPEN JUPYTERLAB” button beside your newly created instance and you will be redirected to your new Workbench.
