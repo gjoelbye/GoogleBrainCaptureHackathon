@@ -1,36 +1,25 @@
+# Note: The GCP bucket with model weights is mounted at: /bucket/ on the file system
+#       our weights are in /bucket/big-bucketz/
+#       /bucket/big-bucketz/best_classification_model.pt and /bucket/big-bucketz/best_binary_model.pt
 # app.py
 import streamlit as st
-import pandas as pd
 import sys
 import os
 sys.path.append(os.getcwd() + '/')
-from src.data.utils.eeg import get_raw
 from src.data.processing import load_data_dict, get_data
 from src.data.conf.eeg_annotations import braincapture_annotations
-from src.data.conf.eeg_channel_picks import hackathon
-from src.data.conf.eeg_channel_order import standard_19_channel
-from src.data.conf.eeg_annotations import braincapture_annotations, tuh_eeg_artefact_annotations
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, balanced_accuracy_score
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from src.data.conf.eeg_annotations import braincapture_annotations
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 import tempfile
 import torch
 from tqdm import tqdm
 from copy import deepcopy
 from model.model import BendrEncoder
-from model.model import Flatten
-from sklearn.cluster import KMeans
-from src.visualisation.visualisation import plot_latent_pca
+from model.classifiers import create_binary_model, create_classification_model
 
 max_length = lambda raw : int(raw.n_times / raw.info['sfreq']) 
 DURATION = 60
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = 'cpu'
 
 def generate_latent_representations(data, encoder, batch_size=5, device='cpu'):
@@ -128,11 +117,9 @@ def main():
     
     # 1: Upload EDF files
     edf_file_buffers = st.file_uploader('Upload .EDF files', type='edf', accept_multiple_files=True)
-    
 
     if edf_file_buffers:
         data_folder, file_paths = get_file_paths(edf_file_buffers)
-        
         
         if st.button("Process data"):
             st.write("Data processing initiated")
@@ -142,24 +129,13 @@ def main():
             all_subjects = list(data_dict.keys())
             X = get_data(data_dict, all_subjects)
 
-            # 3: Load the model and generate latent representations
-            encoder = load_model(device)   
-            latent_representations = generate_latent_representations(X, encoder, device=device)
-
-            # 4: Perform KMeans clustering on the latent representations
-            st.write("Running K-means with n=5 clusters")
-            kmeans = KMeans(n_clusters=5, random_state=42)
-            kmeans.fit(latent_representations)
-            labels = kmeans.labels_
-
-            # 5: Visualize the clusters using PCA 
-            st.write("Visualising clusters using PCA")  
-            # Apply PCA
-            pca = PCA(n_components=2)
-            components = pca.fit_transform(latent_representations)
-
-            # Plot clusters
-            plot_clusters(components, labels)
+            # 3: Do binary predictions
+            binary_model = create_binary_model()
+            binary_model.load_state_dict("/bucket/big-bucketz/best_binary_model.pt")
+            
+            # 4: Do multi class predictions
+            class_model = create_classification_model()
+            class_model.load_state_dict("/bucket/big-bucketz/best_classification_model.pt")
 
 
 
