@@ -21,3 +21,18 @@ steps:
     - '2Gi'
     - '--cpu'
     - '2'
+  # Mount storage bucket to cloud run instance
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+    - 'beta'
+    - 'run'
+    - 'services'
+    - 'update'
+    - 'big-brainz-app-service'
+    - '--execution-environment'
+    - 'gen2'
+    - '--add-volume'
+    - 'name=weights-volume,type=cloud-storage,bucket=big-bucketz'
+    - '--add-volume-mount'
+    - 'volume=weights-volume,mount-path=/'
