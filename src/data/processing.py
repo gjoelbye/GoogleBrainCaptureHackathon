@@ -7,6 +7,18 @@ from src.data.utils.eeg import get_raw
 
 import torch
 
+
+def augment(input_array:np.ndarray, num_augmented_rows:int = 5, augmentation_range:int = 256):
+    """ Function for creating augmented labeled data by moving the window a little (<1 sec left or right) n times """
+    start_time = input_array[:, 0]
+    augmentation_values = np.random.randint(-augmentation_range, augmentation_range + 1, size=(input_array.shape[0], num_augmented_rows))
+    augmented_start_time = start_time[:, np.newaxis] + augmentation_values
+    
+    other_columns = np.repeat(input_array[:, 1:], num_augmented_rows, axis=0)
+
+    return np.column_stack((augmented_start_time.flatten(), other_columns))
+
+
 def normalize_and_add_scaling_channel(x: torch.Tensor, data_min = -0.001, data_max = 0.001, low=-1, high=1, scale_idx=-1):
     if len(x.shape) == 2:
         xmin = x.min()
@@ -73,22 +85,19 @@ def load_data_dict(data_folder_path: str, annotation_dict: dict, tmin: float = 0
             edf_file_path = data_folder_path + subject + '/' + session
             raw = get_raw(edf_file_path, filter=True)
 
-            if labels:
-                # TODO: remove try-except, was added to handle TUAR data
-                try:
-                    events, _ = mne.events_from_annotations(raw, event_id=annotation_dict, verbose='error')
-                    #events = events[np.isin(events[:, 2], list(annotation_dict.values()))]
-                except:
-                    print(f'No annotations in {subject} {session_name}')
-                    data_dict[subject].pop(session_name)
-                    continue
+            epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
 
-                tmax = tmin + tlen
-                epochs = mne.Epochs(raw, events=events, tmin=tmin, tmax=tmax, event_repeated='drop', verbose='error', baseline=(0,0))
+            events, _ = mne.events_from_annotations(raw, event_id=annotation_dict, verbose='error')
+                
+            # drop the labeled sections if we are getting the unlabeled stuff
+            if not labels:
+                # TODO: There is a prettier way of doing this, so be it
+                epochs.drop(np.concatenate((np.floor(events[:,0] / raw.info['sfreq'] / tlen), np.ceil(events[:,0] / raw.info['sfreq'] / tlen))))
+            
+            # tmax = tmin + tlen
+            # epochs = mne.Epochs(raw, events=events, tmin=tmin, tmax=tmax, event_repeated='drop', verbose='error', baseline=(0,0))
 
-                data_dict[subject][session_name]['y'] = epochs.events[:, 2]
-            else:
-                epochs = mne.make_fixed_length_epochs(raw, duration=tlen, preload=True, verbose='error')
+            data_dict[subject][session_name]['y'] = epochs.events[:, 2]
 
             X = epochs.get_data().astype(np.float32)
 
